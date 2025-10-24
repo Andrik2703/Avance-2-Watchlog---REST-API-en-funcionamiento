@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: watchlog-api
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: "gunicorn wsgi:app --bind 0.0.0.0:$PORT"
+    postDeployCommand: "flask db upgrade"
+    envVars:
+      - key: FLASK_APP
+        value: wsgi.py
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        sync: false  # Definir en el panel de variables o usando secrets de Render.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: watchlog-db
+          property: connectionString
+databases:
+  - name: watchlog-db
+    plan: free
